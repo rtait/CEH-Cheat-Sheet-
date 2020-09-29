@@ -1,0 +1,959 @@
+Chapter 1 - Basics
+	OSI Layer:
+		Application -> FTP, HTTP, SMTP -> Data
+		Presentation -> MIME -> Data
+		Session -> ZIP -> Data
+		Transport -> TCP/UDP -> Segment
+		Network -> IP -> Packet
+		Data Link -> ARP -> Frame
+		Physical -> USB standards -> Bit
+
+	TCP/IP Model:
+		Application
+		Transport ->Internet
+	Network Access
+
+	3 - TCP Way Handshake:
+		SYN, SYN/ACK, ACK 
+
+	Basic Vulns:
+		Misconfiguration
+		Default Installs
+		Buffer Overfolows
+		Missing Patches
+		Design Flaws
+		OS Flaws
+		Application FlawsOpen Services
+		Default Passwords
+
+	Threat Modeling:
+		1. Identify Security Objectives
+		2. Application Overview
+		3. Decompose Application
+		4. Identify Threats
+	5. Identify Vulns
+
+	EISA - Enterprise Information Sec Archetecture - how orgs. info systems are built/work
+
+	Risk Management Phases:
+		Identification
+		Assessment
+		Treatment
+		Tracking
+		Review
+
+	ALE = SLE x ARO
+
+	CIA Triad:
+		Confidentiality, Integrity, Availability
+
+	Definition: Bit Flip is an integrity attack, bits are manipulated in the cipher to create a predictable outcome in the plan text when decrypted
+
+	TOE - Target of Eval, what is being tested
+	ST - Sec Target - Documentation 
+	PP - Protection Profile - Sec Requirements for the item to be tested
+
+	Policy types:
+		Access Control Policy - Rules in place to controls access
+		Info Sec Policy - Indicates what company systems may be used for
+		Info protection Policy - sensitivity levels
+		Password Policy
+		Email Policy
+		Info Audit Policy - Framework for auditing within org, when, where, how, why
+
+	Standards - Mandatory
+	Baselines - minimum security levels
+	Guidelines - Flexible
+	Procedures - Step by Step instructions for carrying out tasks
+
+	Hacking Phases:
+		Recon
+		Scanning and Enumeration
+		Gaining Access, includes escalation of priv
+		Maintaining Access
+		Covering Tracks
+
+	Tiger Team - Group of employees working together on a common problem or goal
+
+	Standards:
+		PCI-DSS - Standards for handling credit cards
+		COBIT - framework created by ISACA for information technology management and IT governance
+		ISO/IEC 27001:2013 - req for establishing, implementing, maintaining and continually improving an information security management in an organization
+
+Chapter 2 - Info Gathering
+
+	4 focuses for footprinting:
+		1. Know the security posture
+		2. Reduce focus area
+		3. Identify vulns
+		4. draw network map
+
+	Active footprinting - social engineering
+	Passive footprinting - dumpster diving
+
+	Tools:
+		-Alerting like Google, Yahoo, etc. have an alerting systems
+		-Google Hacking DB 
+			Examples:
+				filetype: type
+				Index of/string
+				info:string
+		Website/Email footprinting tools:
+			HTTrack
+			Black Widow
+			WebRipper
+			Website Watcher (inline with alerting tools)
+			Wayback machine
+			whois
+			tracert (windows) / traceroute (linux)
+			OSRFramework
+
+	DNS
+		An authoritative name server is a name server that gives answers in response to questions asked about names in a zone.
+		
+		nslookup commands:
+			nslookup <IP address> 
+			set type=any
+			ls -d domainname.com
+
+	DNS footprinting:
+		SRV - Services
+		SOA - Start of Auth - Primary name server for the zone, contains hostname and basic properties
+		PTR - Pointer - Maps IP to hostname
+		NS - Name Server 
+		MX - Mail Exchange - Email servers
+		CNAME - Canonical Name - Domain name alias like running FTP ans web service 
+		A - Address 
+
+Chapter 3 - Scanning and Enumeration
+
+	UDP, connectionless communication (TFTP, DNS)
+	TCP, connection communication 
+		Flags
+			SYN
+			ACK
+			RST
+			PSH
+			URG
+
+	Packet crafting tools:
+		Netscan, WAN killer, Ostinato, Colasoft
+
+	Port Cheat Sheet:
+		20-21 - FTP
+		22 - SSH
+		23 - Telnet
+		25 - SMTP
+		53 - DNS
+		67 - DHCP
+		69 - TFTP
+		80 - HTTP
+		110 - POP3
+		135 - RPC
+		137-139 - NetBIOS
+		143 - IMAP
+		161-162 - SNMP
+		389 - LDAP
+		443 - HTTPS
+		445 - SMB
+
+	Tools for ports:
+		CurrPorts
+		netstat
+			netstat -an (displays all connections and status
+			netstat -b (exe tied to open port)
+
+	Port States:
+		Listening
+		Established 
+		CLOSE_WAIT - remote side has closed the connection
+		TIME_WAIT - Your side has closed the connection
+
+	IPv4, 3 address types - unicase, multicast and broadcast
+		IP addresses 32 bits, each set to 1 or 0 separated into 4 octets 
+		2 sections, network identifier and host
+			Broadcast has 2 main types - Limited which are delivered to every system inside the domain, routers ignore all limited broadcasts. 
+			Directed are sent to all devices on subnet
+
+	A subnet mask is any binary pattern that is matched against any IP address to determine which bits belong to the network 
+	
+	XOR compares two binary inputs and creates an output, matching numbers = 0 and if they do not a 1 is generated 
+
+	Routed protocol is one being packaged up and moved around
+	Routing protocol decides the best way to get to the destination
+
+	Network scanning methodology:
+		1. Check for live systems 
+		2. Check for open ports
+		3. Scan beyond IDS
+		4. Banner grabbing
+		5. Scan for Vulns
+		6. Network Diagrams
+		7. Prepare Proxies
+
+	ICMP
+		0: Echo reply, waiting for a type 8
+		3: Destination unreachable, 0 ntwork, 1 host, 13 administratively prohibited (poorly configured firewall)
+		4: Source Quench
+		5: Redirect, 0 redirect datagram for network, 1 redirect datagram for host
+		8: Echo Request, requesting echo reply
+		11: Time exceeed, TTL expired
+
+	ICMP tools:
+		Nmap, Angry IP, Solar Winds
+		Nmap commands for ICMP scans (also called ping scan)
+			-sn -pe is a ping sweep (no scan option but does host discovery)
+			-sn ping scan 	
+	
+	Ping of Death: 
+		Use of fragmented ICMP packets and reassembly to use a buffer overflow to crash the OS
+
+	Port scan types:
+		1. Full Connect, TCP connect, Full open scan - Runs through the full 3 way handshake with a RST at the end
+		2. Stealth, half open scan, "SYN" scan - Only SYN packets are sent (No full 3 way)
+		3. Inverse TCP flag, "Fin" scan - Uses Fin, Urg, PSH and if the ports are open there will be no response, if closed RST/ACK
+		4. ACK flag probe, attacker sends an Ack flag and looks at the headerthe TTL if TTL is less than 64 the port is open. 
+		In the Window version if the window size on the RST packet has anything other than 0 then the port is open 
+		*This scan can be used to check filtering on the remote end, if the ACK is sent and no response there is a stateful firewall. 
+		5. Idle, Used spoofed IP zombie PC and monitors IPID
+
+	Nmap switches:
+		-A, Enables OS detection and Version detection, Script scanning and Traceroute (no ping scanning)
+		-sA, ACK Scan
+		-sF, FIN scan
+		-sI, Idle Scan
+		-sL, DNS scan (List scan)
+		-sN, NULL scan
+		-sO, protocol scan
+		-sR, RPC scan
+		-sS, SYN scan
+		-sT, TCP connect scan
+		-sW, Window scan
+		-sX, XMAS scan (Not a stealthy scan)
+		-PI, ICMP scan
+		-P0, No ping
+		-T0, slowest
+		-T1, Slowest
+		-T2, Normal speed
+		-T3 Parrallel, normal speed
+		-T4 Fast scan
+		(slower best for hiding)
+
+	Hping3
+		-1, ICMP (Windows does not respond to echo requests that are sent to a network) 
+		-2, UDP
+		-8, Scan and sets ports to be scanned
+		-9, lisiten mode
+		--flood, DoS
+		-F, sets Fin
+		-S, sets SYN/ACK
+		-R, RST
+		-P, PSH
+		-A, ACK
+		-U, URG
+		-X, XMAS
+		
+	Other Tools
+		Dmitry - Command line open source tool for Linux 
+
+	Proxying, proxy chains for obfuscation
+		TOR, Onion routing
+
+	Linux Enumeration:
+		finger (user and host machine info)
+		rpcinfo/rpcclient (provide info on Remote Procedure Calls in the enviornment)
+		showmount (info on shared directories on the machine)
+
+	Windows security ID (SIDS) and Resource ID (RIDS)
+	C:\Windows\System32\Config\SAM
+
+	Banner grabbing:
+		sends unsolicited request to open port and investigates response 
+			Active: sending specially crafted packets
+			Passive: watching traffic, reading messages, sniffing network
+	Telnet/netcat can perform banner grabbing
+		telnet <IP> 80
+		nc -v -n <IP> 80
+		
+		nc 10.11.12.13 12345 - command will initate outbound connection on destination port 12345
+		
+			netcat:
+				-e , launches program after connection is established
+				-L, listen for inbound connections
+				-t, telnet communication
+	NetBIOS
+	TCP/IP network segment
+
+	Tools:
+	SuperScan
+	Hyena
+	nbtstat
+		-an displays all connections and listening ports
+		-n, local table
+		-A <IP>,remote systems
+		-c, cache
+			Codes:
+			<1B> Domain master browser
+			<1C> Domain Controller
+			<1D> master browser for subnet
+			<00> Hostname, domain name
+			<03> service running<20> server service running
+	NetBIOS name resolution does not work on IPv6
+
+	SNMP Enumeration:
+		MIB, Management Info Base, holds info arranged into obj IDs (OIDS)
+
+	Protocol encryption:
+		NTPv3 and SMTPv3
+
+	SMTP commands using telnet:
+		VRFY, validates user
+		EXPN, Gives delivery address, mailing list, alias
+		RCPT TO, defines recipients
+
+Chapter 4 - Sniffing and Evasion
+
+	Linux and Windows, NIC must be in promiscuous mode
+	Windows WinCap/Linux linpcap
+
+	Switches split collision domains
+
+	Law enforcement calls it "wire tapping"
+	Laws:
+		FITARA - Framework for how US buys technology (2015 update)
+		FISMA - Implementation of security policies 
+		800-53 - Implementation of security and privacy controls for federal systems 
+		GLBA - protects confidentiality and integrity of personal information held by financial institutions
+		
+
+	Protocols suseptible to sniffing
+		FTP
+		TFTP
+		NNTP
+		IMAP
+		POP3
+		HTTP
+		SMTP
+
+	ARP:
+		Datalink layer, resolves IP address to MAC , ARP is a broadcast protocol
+		retains cache on machine
+		arp -a will display cachearp -d deletes item
+		Gratuitous ARP, packet that updates the arp cache to change MAC address to alter traffic flow
+		ARP poisioning, ARP spoofing, gratuitous ARP - Process of changing an ARP cache to inject faulty info
+		
+	IPv6:
+		128 bit address, eight groups of 4 hexadecimal digits separated by colons 
+		loop back address is 0:0001 or ::1
+			unicast, only one host
+			multicast, multiple hosts can recieve
+			anycast, large group can receive with nearest host opening
+				link local scope, hosts on same subnet - fe80::/10 block reserved
+				site local, same org - FEC0::/10
+				global, all
+		traditional scanning is harder, but getting a machine inside can use the "all hosts" link local address
+		
+	PRISM (Planning Tool for Resource Integration, Synch and Mgmt) - NSA wiretapping foriegn Internet traffic
+
+	Passive sniffing - watching packets (no interference)
+		only works if NIC is in same collision domain as targets 
+			Hubs preferable as they extend the collision domain
+			Misconfigured NIC can provide passive traffic
+				
+	Active Sniffing
+		Packet Injection tool/manipulation
+		Active usually indicates Collision domain are apart of is segmented from target (usually on a switch)
+			Need to get the switch to close the port you are connect to every time it closes the port we want to sniff use a Span Port
+				Span Port/Port mirroring - switch altered to send a copy of frames from one port to another (Cisco configured not to do this)
+				
+	Tools
+	Wireshark
+	example filters: 
+		Show only SMTP (port 25) and ICMP traffic:
+		tcp.port eq 25 or icmp
+			== equal to
+			&& display if both conditions are true
+			or display either or
+				can also filter on decimal numbering:
+					FIN = 1
+					SYN = 2
+					RST = 4
+					PSH = 8
+					ACK = 16
+					SYN+ACK = 18
+					URG = 32
+	tcpdump (linux)
+		commands:
+		-i (listening mode)
+		-w (specifies file)
+		
+	Ettercap
+	Etherpeek
+	Snort
+
+	DHCP - Contains pool of associated IP addresses and tracks them
+		DHCPDiscover, system looking for server
+		DHCPOffer, server sends response
+		DHCPrequest, system requests IP
+		DHCPPack, provides IP
+
+	Techniques
+	Mac Flooding
+		Content address table (CAM) if its empty or full, everything is sent to all ports
+		Send a lot of MAC addresses to the CAM table that it cant keep up and turns into a hub
+		ECC exam may use "switch port stealing" similar idea to MAC flooding but only applies to specific port(s) causing a race condition
+	ARP poisioning, ARP spoofing, gratuitous ARP
+		Process of changing an ARP cache to inject faulty info
+	DHCP starvation
+		Attacker send continuous requests DHCP requests to server on the subnet. 
+		This results in IP running out quickly. (Like a DoS, but may be in sniffing section of ECC) 
+			Rouge DCHP Server, attacker sets up server and hands out IP addresses (may redirect communication sessions)
+	Spoofing
+		IP, MAC, DNS
+		MAC, Change MAC address to the PC you want to sniff traffic from. Can be changed from NIC properties,
+		the switch will have 2 entries with the same address in the CAM table. If port security is not on, the latest entry will get the traffic.
+		
+	Evasion:
+		IDS
+			False negative, IDS reports that there is nothing wrong when there is (Worse than FP)
+			False positive, 
+		-Sits on the network permimiter (NIDS sit outside or inside the firewall)
+			(Does not sit inline with network traffic)
+		-Go slow to avoid IDS detections
+		-Fragmentation, put payloads into packets that IDS will ignore and reassemble later 
+		-Unicode characters may confuse scanners
+
+		Note: network tap, allows you to see traffic passing by
+
+	Firewall:
+		-Placed at the edge of a network with on port facing outward and atleast one inward and another facing the DMZ 
+		-implicit deny - any rule not written will be automatically denied
+		-HTTP tunneling, trying to bypass a firewall by masking packets by wrapping them in an HTTP shell
+		-Most use NAT at the border 
+			Basic NAT, 1 to 1 mapping where each internal IP is mapped to a unique public address
+			NAT overload or port address translation, uses port numbers unique to each conversation to allow many internal addresses to use one external
+		-Firewall types:
+			Packet-filtering (older), Based on ACL, incapable of inspecting packets payload
+			Stateful Inspection, "stateful multilayer inspection" , Can track status of connection/conversation, monitors payload
+			Circuit level gateway, works at the session layer, and allows or prevents data streams (not each packet) (Layer 2)
+			Application Level, filters like a proxy allowing certain applications in and out based on ACL/rule set
+
+			Ways to find a firewall from the outside:
+				ICMP, type 3 Code 13 (traffic is being filtered by firewall)
+				ICMP type 3 Code 3 will indicate the client has the port closed
+				Tool: firewall informer 
+				traceroute
+			Ways to get past firewall:
+				Identify ports, "fire walking" (nmap can do this)
+				compromised machine on inside
+				Packet crafting	tools
+					PackETH (linux)
+					Packet Gen
+					Netscan
+	-Honeypots:
+		2 types:
+		1. High interction, simulates all services and designed to be hacked (Honeynets)
+		2. low-interaction, limited and not to be completely hacked (Specter, Honeyd, KFSensor)
+	-Nessus can discover honeynets
+	-Placed inside DMZ (Webserver can also reside inside DMZ)
+
+	Tools:
+		libwhisker, can be used for IDS evasion
+		Snort (IDS), open source, sniffer, traffic logging, protocol analyzing, detects buffer overflows, port scans, OS fingerprinting
+			3 different modes: 
+			1. Sniffer mode 
+			2. Packet logger mode, saves packets for review later in time
+			3. NIDS
+				Order that snort follows rules
+					Pass, Drop, Alert, Log
+		The config file resides in /etc/snort (linux), c:\snort\etc (windows)
+			Contains launch and rule information
+			Sample rules for exam:
+				alert tcp !$HOME_NET any -> $HOME_NET 23 (msg: "Telnet attempt..need admin access ; content: admin)
+				(alert if any outside address using any source port is attempting to connect on 23)
+			
+Chapter 5 - Attacking a System
+
+	Windows stores hashed passwords in SAM file 
+
+	NTDS.DIT file contains entire active directory pws
+
+	Windows default authentication protocol method is Kerberos 
+		Uses symmetric and Asymmetric to pass keys across a netork
+			Uses KDC - Key Dist Center
+				AS - Auth Service
+				TGS - Ticket Granting Service
+			TGT - Ticket granting ticket
+				Order: 
+				1. Client asks KDC comprised of AS and TGS for a ticket
+				2. Server responds with a secret key. Hashed copy kept in AD on server (this step is known as TGT)
+				3. Client decrypts message and allowed to log in
+
+			Port Security
+				Allowa traffic from a MAC to pass through to its port destination
+				
+			Windows Registry
+				collection of settings and configurations that make the system run
+				OS components, applications running, drivers, SAM and UI
+					Keys and Values:	
+						Key - Location Pointer
+						Value - Defines the settings
+							Root Level Keys:
+								1. HKEY_LOCAL_MACHINE (HKLM) - Hardware (Processor, etc) information
+								2. HKEY_CLASSES_ROOT (HKCR) - File associations & Obj linking and embedding classes
+								3. HKEY_CURRENT_USER (HKCU) - Contains profile for the use currently logged in
+								4. HKEY_USERS (HKU) Contains user configuration info for active users
+								5. HKEY_CURRENT_CONFIG (HKCC) - Pointer to HKLM to make editing profiles easier
+				
+	Microsoft Management Concole - MMC
+
+	Linux Security:
+
+	Important Folders:
+		/bin - Holds basic linux commands (similar to Windows32 folder)
+		/dev - Contains pointer locations
+		/etc - Administration files and passwords
+		/mnt - Locations that have been mounted
+		/sbin - System binaries, includes daemons
+	
+	Important commands:
+		cat - Displays contents of file
+		cp - Copy
+		ifconfig - network configuration
+		rm - removes files
+		su - performs functions of another user
+		
+	Permissions:
+		4 = Read
+		2 = Write
+		1 = Execute 
+			Example: chmod 464 file 1 (this is read, read/write and read -- add the numbers to get 6)
+			'777' is all permissions to all groups
+		
+	ShadowFile is only accessible by root user and contains the password file (encrypted). This is also located in /etc (hashed)
+
+	Tools:
+		John the Ripper works well on linux shadow files 
+
+	System Hacking GOALS according to ECC
+		1. Gaining Access
+		2. Escalating Privledges
+		3. Exe Applications
+		4. Hiding Files
+		5. Covering Tracks
+	
+	Clearing Tracks
+		-Apphend . in linux to hide files
+		-Clearing Logs using meterpreter
+			Launch a meterpreter shell in metasploit 
+			type clearev
+
+	Biometrics
+		FRR - False Reject Rate
+		FAR - False Acceptance Rate 
+			Both are used to generate the CER - Crossover Error Rate (Lower is better)
+		Active Biometrics, touching
+		Passive Biometrics, no touch 
+			Note: Retina (laser) scan is active, Iris scan (picture) is passive 
+		Biometric passport - contains your personal biometric information. This is single factor because its just a token. 
+	
+	Password Attacks:
+		1. Non-electronic
+		2. Active Online - Dictionary, brute force, hash injections, phishing , trojan , spyware, keyloggers,
+			These attacks take longer than passive
+			LLMNR/NBT-NS (Link Local Multicast Name Res/ NETBIOS) is an active attack that can redirect DNS traffic to attacker to capture hashes for brute forcing.
+				LLMNR UDP port 5535 / NBT-NS UDP port 137
+		3. Passive Online - Sniffing for passwords
+		4. Offline - Steals copy of password file (SAM) - Use dictionary attacks, brute forcing on the file (not online)
+		5. Rule Based Attack - Dictionary , Birthday, with more information about the user 
+	
+	Windows PW tools:
+		CHNTPW
+		Stellst Pheonix
+		Windows Recovery Ultimate
+		ISeePassword
+		Windows Password Recovery Tool'Passware Kit
+		PCUnlocker
+
+	Other PW tools:
+		Cain and Abel
+			ARP poisioning mode with Cain
+			Abel can launch system shell on remote PC
+			Can be used to record and extract void conversations
+		Ettercap
+		THCHydra
+		Metaspolit , also used for privledge escalation
+
+	Privledge Escalation:
+		Vertical Escalation - Moving Up, ie standard user to admin
+		Horizontal Escalation - Jumping to another account with similar privledges
+	
+	After Priv Escalation, next step is to execute applications (keyloggers, spyware, backdoors, etc)
+	After Executing applications, next step is to cover tracks
+	-Using Windows Alternate Data Stream (ADS) / NTFS , which is used to hide a file behind another file 
+		example: c:\type c:\badfile.exe > c:\readme.text:badfile.exe
+		LNS and Sfind will find these ADS issues
+		
+	-Steganography/Semagram will also hide information
+	
+	-DLL Hijacking - May be able to replace libraries in same app directory to escalate privledges
+	
+	-Manipulate/clear/corrupt logs
+	-default log location: %systemroot%\system32\config
+	
+	-Rootkits - Software placed on a system used to obscure system compromise 
+		Notable Rootkits:
+			1. horsepill, linux kernel rootkit inside of initrd
+			2. grayfish, Windows rootkit that injects code into the boot record
+			3. Sirefef
+				Types of Rootkits: 
+					1. Hypervisor - Modify bootkit of host system to load VM
+					2. Hardware (Firmware) - Hide in hardware or firmware
+					3. Bootloader - Replace bootloader
+					4. Application - Replace application with trojan binaries
+					5. Kernel - Attack boot sectors and kernel level of the OS, replacing kernel
+					6. Library - Use system level calls to hide 
+					
+			Ring Levels:
+				Ring 0 - Kernel
+				Ring 1 - Drivers 
+				Ring 2 - Libraries
+				Ring 3 - Applications
+			
+			ECC's steps for detecting rootkits
+				1. Run dir /s /b /ah and dir /s /b /a-h command in infected folder 
+				2. Boot clean version and run same commands 
+				3. Use windif to see results
+
+	Other Notes:
+		Linux '&' commands will run things in the background and stop when the user logs out
+		LM = LAN Manager
+			old authentication
+			uses DES 
+
+	Hiding files:
+		start readme:badfile.exe
+		
+Chapter 6 - Application Security
+
+	OWASP Top 10
+		1. Injection
+		2. Broken Auth
+		3. Sensitive Data Exposure
+		4. XXE - Exploitation of vulnerable XML engines
+		5. Broken Access Control
+		6. Misconfiguration
+		7. XSS
+		8. Insecure Deserialization
+		9. Compnents with known Vulnerabilities
+		10. Insufficient Logging
+		
+	DNS Records:
+		A - Translate host name to IP address
+		CNAME - Map hostname to additional hostname
+		MX - Mail Exchange
+		PTR - Reverse DNS Lookup info
+	
+	Attack Methodology
+		1. Information Gathering
+		2. Web Server Footprinting
+			- Use nmap
+			Commands:
+				1. nmap --script http-trace -p80 localhost
+				2. nmap --script http-google-email <host>
+				3. nmap --script hostmap-* <host> 
+				4. nmap --script http-enum -p80 <host>
+				5. nmap -p80 --script http-robots.txt <host>
+				
+	3. Website Mirroring
+	4. Vulnerability Scanning
+	5. Session Hijacking
+	6. Web Server Password Cracking
+	
+	Attacks:
+		Heartbleed:
+			OpenSSL Vulnerability that obtains 64kb of data obtained from a webserver
+		
+		POODLE:
+			MiTM attack, downgrade from TLS to SSL 3.0
+			
+		Tools:
+			RUDY - R U Dead Yet, starves a webserver by keeping sessions open as long as possible
+			THOR - APT Scanner
+		
+		Flags cookies:
+			httponly: mitigates some XSS attacks
+			
+		Web Servers	
+			1. Front End Server
+			2. Back End Server
+			3. Database
+				Note: LSAPI (Internet Services Application Programmining Interface) filters should be removed to increase security
+			
+		Popular Servers
+			Apache
+				Configuration consists of as apart of a module with configuration files
+					http.conf for server status 
+					httpd.conf controls aspects including who can view the server status page
+					php.ini contains verbose error messagin settings
+			NginX (Engine X)
+			IIS
+				Configuration consists of running LOCAL_SYSTEM and spawns shells
+		
+		HTTP Methods
+			GET
+				Requests data from a resource (Gets the data)
+				Note: Dont use this method to send data
+			HEAD
+				Identical to the GET method except the server does not return a message body in the response
+			POST
+				Orgin server accept the entity enclosed in the request as a new subordinate as the resource identified in the URI. 
+				The function is determined by the server and depended of the request URI
+				Best method to submit data 
+			PUT
+				The enclosed entitiy should be considered a modified version of the one residing on the server 
+			DELETE
+				Delete resource requested by the request URI
+			TRACE
+				Application layer loopback of request message, final recipient will receive 200 OK
+			CONNECT
+				Reservers for proxy that can dynamically switch to being a tunnel (SSL)
+				
+		Responses
+			1XX - Info
+			2XX - OK
+			3XX - Redirection
+			4XX - Client Error
+			5XX - Server Error
+		
+		Attacks
+			DNS amplification
+				Manipulation of recursive DNS to cause a DoS
+			Directory Transversal
+				An attempt to access internal server files (restricted files) (dot dot slashes are intented to take the shell back to root)
+				IDS can look at this
+				dot dot slash is also a variant of unicode or unvalidated input attack
+			Shellshock/Bashdoor
+				Manipulation of websites using bash commands. Shellshock causes bash to unitentionally execute commands 
+			XSS
+				Add scripts to URL 
+				If client side has access to document.cookie, can send XSS attack to remote host
+			CSRF
+				Tricks victim to victims into submitting a malicious request 
+			Session Fixation 
+				Similar to CSRF, Attacker logs into legit site and pulls session ID, sends email to victim with attackers session ID
+			HTTP response splitting
+				Works by adding response data to input field on the sever then it splits the response in a couple directions
+			Pharming Attack:
+				DNS Poisioning Attack			
+			Injection attacks:
+				SQL Injection	
+					Use single quote '
+					In Band - Attacker using same communication channel
+					Out of Band - Different communication channel
+					Blind - Error messages not visible to attacker but site is suseptible
+						Tools for SQL Infection
+							Absinthe, Pangolin, Havij
+				CSPP (Connection String Parameter pollution)
+					Takes advantages of web applications that talk to databases by using ; 
+				File Injection
+					Uses a pointer in a web form input to an exploit hosted on a remote site 
+				Command Injection
+					Where the attackker injects commands into the form fields instea of expected entry
+				Shell Injection 
+					Attacker attempts to gain access using Java or other functions 
+				LDAP 
+					Expolits unvalidated web input that passes LDAP queries
+					&, )(&) symbol ends a LDAP query
+		
+		SOAP
+			Uses XML to communicate 
+			Compatible with HTTP and SMTP 
+			Messages are one way
+			
+		Metaspoit information
+			Framework accepts custome plugins, interfaces, security tools, webservers, and modules
+			Includes:
+				Exploits
+				Payloads - Uses arbitary code
+				Auxiliary - Used for one off actions (like a scan)
+				NOPS - Buffer overflow type operations
+				REX - Library used for most tasks
+				
+		Canary Words
+			Known values placed between the buffer and control data, if buffer overflow occurs the canary words are modified first
+			
+		BBProxy
+			Blackberry attack tool, can be used for Blackjacking
+		
+Wireless Networking - CH 7
+
+	Standards
+		802.11a - 54mbps, 5 GHz, OFDM
+		802.11b - 11mbps, 2.4 GHz, DSSS
+		802.11d - Variation of a + b standards
+		802.11g - 54mbps, 2.4 GHz, OFDM and DSSS
+		802.11i - WPA/WPA2
+		802.11n - 100+mbps, 2.4-5 GHz, OFDM
+		802.11ac - 1000mbps, 5GHz, QAM
+	Other notable
+		802.15.1 - Bluetooth
+			Note: Bluetooth uses weak encryption techniques
+				Attacks:
+					Bluesmack: Denies access to bluetooth devices
+		802.15.4 - Zigbee, low power, low data rate
+		802.16 - WiMax, broadband wireless metropolitian area networks
+		
+	Modulation - Practice of manipulating properties of a wave form to encode the data
+	
+	OFDM - Wavelengths being divided into a bunch of frequency bands that do not overlap
+	DSSS - Combines waveforms into a single one
+	
+	Modes:
+		Infastructure mode - this mode is what most networks use
+		Ad Hoc - Connect each system to one another
+		
+	BSSID: Basic Service Set ID, MAC address of wireless AP that is the center of the BSS
+	
+	Tools
+		Kismet - Can detect and sniff wireless traffic
+		Netstumbler - Windows tool to detect wireless traffic 
+	
+	Antennas:
+		Omnidirectional, 360 degrees (most APS)
+		Dipole, have two signal towers
+		Directional, points in specific direction
+			Yagi, type of directional antenna 
+			Parabolic grid, look like satelite dishs, directional antennas
+			
+	Authentication:
+		Wireless
+			Open System Authentication, Client send 802.11 frame with SSID to AP 
+			Shared Key Authentication, Challenge/Request Scenario
+			Centralized Authentication, AAA like RADIUS
+			
+	War Chalking - Drawing symbols on walls to indicate wireless availability
+		)( - open network
+		Key - locked
+		$ - Pay for access
+		W - WEP enabled
+		
+	Wireless Encryption
+		WEP - Uses RC4 cipher, Initialization Vectors (IV) and XOR operation, WEP is unsecured and no longer used much
+			3 encryption options: 
+				1. 64 bit version uses 40 bit key
+				2. 128 version uses 104 bit key
+				3. 256 version uses 232 bit key
+		WPA
+			Uses RC4 + Temporal Key Integrity Protocol (TKIP), 129 bit key and MAC address
+				Temporal = Temporary, every 10000 packets and the keys are transferred back and forth using EAP
+		WPA2
+			Same as WPA but designed with the Govt and enterprise in mind
+				EAP and RADIUS can be tied together
+				Uses AES and FIPS 140-2 compliance
+				Uses Authentication Code Protocol (CCMP) - Similar to hashes to prove integrity
+		
+		Wireless Threat Categories
+			1. Access Control Attacks
+			2. Integrity Attacks
+			3. Confidentiality Attacks
+			4. Availability Attacks
+			5. Authentication Attacks
+			
+		Attacks
+			"War" attacker moves around trying to find open WiFi networks to connect to
+				Can use tool WIFIExplorer, WiFIFoFum and OpenSignalMaps. AirPCap Dongle
+				WIGLE tool - Can look into someones smartphone
+				
+Cryptography Notes:
+		Asymmetric Algorithms (2 keys, Public Key Crypto, PKI)
+			RSA
+				Suseptible to chosen cipertext attack - decryption of cipertext to discover the key
+			D-H
+			PGP
+			ECC
+			Digital Signatures
+	
+		Symmetric Algorithms (Aka Same key, 1 Key)
+			Faster, great for bulk encryption
+				AES (Block)
+				DES/3DES
+				RC4 (Stream)
+				Blowfish
+		
+		Stream ciphers are faster than block ciphers
+		Known Plaintext attack, the attacker has both the plaintext and ciphertext
+					
+		Steps to encrypt email (asymmetric, PKI)
+			1. Create a hash of message body
+			2. Encrypt hash using your private key
+			3. Encypt the message with receipients public key
+			
+		Key Escrow:
+			Give a trusted 3rd party the ability to access confidential data 
+			
+
+	
+		
+			
+			
+				
+		
+					
+					
+				
+			
+			
+	
+	
+	
+
+
+
+		
+				
+			
+	
+
+	
+
+
+
+
+
+
+	
+
+
+		
+	
+	
+	
+		
+	
+
+
+	
+		
+		
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
